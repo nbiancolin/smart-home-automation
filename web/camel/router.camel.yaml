@@ -1,0 +1,36 @@
+- restConfiguration:
+    component: platform-http
+    scheme: http
+    port: "426"
+    apiContextPath: /api-docs
+- rest:
+    id: rest-379a
+    get:
+      - id: get-66ad
+        description: For checking if server is online
+        path: /ping
+    post:
+      - id: post-b1f5
+        description: Devices auto-register themselves here
+        path: /device-auto-register
+- rest:
+    id: rest-d65e
+    path: /blinds
+- route:
+    id: route-a0dc
+    description: Ping Handler
+    nodePrefixId: route-de0
+    from:
+      id: from-4681
+      description: pingQueue
+      uri: direct
+      parameters:
+        name: pingQueue
+      steps:
+        - setBody:
+            id: setBody-e1cf
+            description: return "Pong!"
+            expression:
+              constant:
+                id: constant-d252
+                expression: Pong!
