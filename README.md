@@ -17,3 +17,9 @@ On startiup, arduino sends a request to running web server, message contains its
 Arduinos should have 2 endpoints: their assigned purpose (eg. open/close blind) and a health check, to be run every 5 minutes.
 
 This data will be stored in a
+
+
+TODOS:
+- Stored procedure for sending data to database
+- test with arduino (and finish arduino code
+)

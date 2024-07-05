@@ -9,6 +9,7 @@
       - id: get-66ad
         description: For checking if server is online
         path: /ping
+        to: direct:pingQueue
     post:
       - id: post-b1f5
         description: Devices auto-register themselves here
@@ -34,3 +35,20 @@
               constant:
                 id: constant-d252
                 expression: Pong!
+- route:
+    id: route-f526
+    nodePrefixId: route-24b
+    from:
+      id: from-17e8
+      description: deviceAutoRegisterHandler
+      uri: direct
+      parameters:
+        name: deviceAutoRegisterHandler
+      steps:
+        - to:
+            id: to-cde3
+            uri: kamelet:sqlserver-sink
+            parameters:
+              serverName: 192.168.1.120
+              username: sa
+              password: <YourStrong@Passw0rd>

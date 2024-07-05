@@ -5,8 +5,8 @@
 
 String properties[] = {
     "{"
-    "   \"version\": \"1.0.0\"",
-    "   \"name\": \"blinds\"",
+    "   \"name\": \"North Window\"",
+    "   \"type\": \"blinds\"",
     ""
     "}"
   };

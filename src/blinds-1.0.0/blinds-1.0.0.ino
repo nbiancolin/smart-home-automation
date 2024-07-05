@@ -6,9 +6,28 @@
 //include properties
 #include "properties.h"
 
-// Replace with your network credentials
-const char* ssid     = "JUPITER";
-const char* password = "Potatoes";
+// ** FUNCTION DECLARATIONS **
+
+//connects device to network - returns IP Address of device
+
+/**
+ * connects device to network - returns IP Address of device
+ *
+ * @returns Ip Address of device
+ * 
+ * @param {{ssid}} Network Name
+ * @param {{password}} Network Password
+ */
+String connectToWifi(String ssid, String password);
+
+// Send HTTP request to server to register devcie
+bool registerDevice(String ipAddress);
+
+//open and close blinds
+void openBlinds();
+void closeBlinds();
+
+// ** GLOBALS *
 
 // Set web server port number to 80
 WiFiServer server(80);
@@ -16,11 +35,10 @@ WiFiServer server(80);
 // Variable to store the HTTP request
 String header;
 
-//to store data that is sent to main server on startup
-String ipAddress;
+//enum for state of blinds
+enum State {OPEN, CLOSED};
 
-//server IP - ideally constant
-String serverIp = "http://192.128.123.456";
+State currState;
 
 // Current time
 unsigned long currentTime = millis();
@@ -34,53 +52,16 @@ void setup() {
 
   Serial.println("Nick's Smart Home Automation\n");
 
-  // Connect to Wi-Fi network with SSID and password
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500); //TODO: add some LED stuff here
-    Serial.print(".");
-  }
+  //connect to network 
+  String ipAddress = connectToWifi(SSID, PASSWORD);
 
-  //add IP to properties string
-  ipAddress = WiFi.localIP().toString();
-  properties[3] = "\"address\": \"" + ipAddress + "\"" ;
-
-  Serial.println("");
-  Serial.println("WiFi connected.");
-  Serial.println("IP address: ");
-  Serial.println(ipAddress);
-  server.begin();
-
-  //on setup, send a post request to the server to register device
-  HTTPClient http;
-  WiFiClient client;
-
-  String registerDeviceUrl = serverIp + "/device-auto-register";
-  http.begin(client, registerDeviceUrl.c_str());
-
-  //set appropriate web headers
-  http.addHeader("Content-Type", "application/json"); //it is easy to work with json in Camel
-
-  String httpRequestData = "";
-  for(int i = 0; i < 5; ++i){
-    httpRequestData += properties[i];
-  }
-
-  int httpResponseCode = http.POST(httpRequestData);
-
-  if(httpResponseCode == 200){
-    Serial.println("Recieved code 200 OK. Proceeding with operation");
-  } else {
-    Serial.println("ERROR: Recived code:" + httpResponseCode);
-  }
-
-
-
+  //register device IP with server
+  registerDevice(ipAddress);
 }
 
 void loop(){
+
+  //initialize server
   WiFiClient client = server.available();   // Listen for incoming clients
 
   if (client) {                             // If a new client connects,
@@ -101,31 +82,36 @@ void loop(){
             // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
             // and a content-type so the client knows what's coming, then a blank line:
             client.println("HTTP/1.1 200 OK");
-            client.println("Content-type:text/html");
+            client.println("Content-type:application/json");
             client.println("Connection: close");
             client.println();
-            
-            // turns the GPIOs on and off
-            if (header.indexOf("GET /5/on") >= 0) {
-              Serial.println("GPIO 5 on");
-              output5State = "on";
-              digitalWrite(output5, HIGH);
-            } else if (header.indexOf("GET /5/off") >= 0) {
-              Serial.println("GPIO 5 off");
-              output5State = "off";
-              digitalWrite(output5, LOW);
-            } else if (header.indexOf("GET /4/on") >= 0) {
-              Serial.println("GPIO 4 on");
-              output4State = "on";
-              digitalWrite(output4, HIGH);
-            } else if (header.indexOf("GET /4/off") >= 0) {
-              Serial.println("GPIO 4 off");
-              output4State = "off";
-              digitalWrite(output4, LOW);
+
+            if (header.indexOf("GET /request-device") >= 0){
+              Serial.println("Device Information requested, returning value to sender");
+              for(int i = 0; i < 5; ++i){ //return properties sent
+                client.println(properties[i]);
+              }
+            }
+            if(header.indexOf("POST /close") >= 0) {
+              if(currState == CLOSED){
+                Serial.println("Blinds are already closed, returning this message to the sender");
+                client.println("{\"state:\": \"closed\"}");
+              } else {
+                closeBlinds();
+              }
+            }
+            if(header.indexOf("POST /open") >=0) {
+              if(currState == OPEN){
+                Serial.println("Blinds are already open, returning this message to the sender");
+                client.println("{\"state:\": \"open\"}");
+              } else {
+                openBlinds();
+              }
+
             }
             
 
-
+            /* DEPRECATED - Old code from tester
             // Display the HTML web page
             client.println("<!DOCTYPE html><html>");
             client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
@@ -162,6 +148,8 @@ void loop(){
             // The HTTP response ends with another blank line
             client.println();
             // Break out of the while loop
+
+            */
             break;
           } else { // if you got a newline, then clear currentLine
             currentLine = "";
@@ -177,5 +165,57 @@ void loop(){
     client.stop();
     Serial.println("Client disconnected.");
     Serial.println("");
+  }
+}
+
+
+String connectToWifi(String ssid, String password){
+  // Connect to Wi-Fi network with SSID and password
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+  WiFi.begin(ssid.c_str(), password.c_str());
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500); //TODO: add some LED stuff here
+    Serial.print(".");
+  }
+
+  //add IP to properties string
+  ipAddress = WiFi.localIP().toString();
+  properties[3] = "\"address\": \"" + ipAddress + "\"" ;
+
+  Serial.println("");
+  Serial.println("WiFi connected.");
+  Serial.println("IP address: ");
+  Serial.println(ipAddress);
+  server.begin();
+  return ipAddress;
+}
+
+bool registerDevice(String ipAddress){
+  //on setup, send a post request to the server to register device
+  HTTPClient http;
+  WiFiClient client;
+
+  String registerDeviceUrl = serverIp + "/device-auto-register";
+  http.begin(client, registerDeviceUrl.c_str());
+
+  //set appropriate web headers
+  http.addHeader("Content-Type", "application/json"); //it is easy to work with json in Camel
+
+  //build request bpdy
+  String httpRequestData = "";
+  for(int i = 0; i < 5; ++i){
+    httpRequestData += properties[i] + "\n";
+  }
+
+  //send request
+  int httpResponseCode = http.POST(httpRequestData);
+
+  if(httpResponseCode == 200){
+    Serial.println("Recieved code 200 OK. Proceeding with operation");
+    return true; // request was successful
+  } else {
+    Serial.println("ERROR: Recived code:" + httpResponseCode);
+    return false; //request failed
   }
 }
