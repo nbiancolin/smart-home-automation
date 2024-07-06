@@ -145,7 +145,9 @@ String connectToWifi(String ssid, String password){
 
   //add IP to properties string
   String ipAddress = WiFi.localIP().toString();
-  properties[3] = "\"address\": \"" + ipAddress + "\"" ;
+  properties[2] = "    \"address\": \"" + ipAddress + "\"" ;
+  //a bug appears when modifying an array of strings, in that thjis value gets overwritten. Adding this to fix it
+  properties[3] = "} ";
 
   Serial.println("");
   Serial.println("WiFi connected.");
