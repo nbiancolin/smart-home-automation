@@ -5,6 +5,7 @@
 
 //include properties
 #include "properties.h"
+#include "constants.h"
 
 // ** FUNCTION DECLARATIONS **
 
@@ -36,7 +37,7 @@ WiFiServer server(80);
 String header;
 
 //enum for state of blinds
-enum State {OPEN, CLOSED};
+enum State {B_OPEN, B_CLOSED};
 
 State currState;
 
@@ -91,17 +92,17 @@ void loop(){
               for(int i = 0; i < 5; ++i){ //return properties sent
                 client.println(properties[i]);
               }
-            }
+            } else
             if(header.indexOf("POST /close") >= 0) {
-              if(currState == CLOSED){
+              if(currState == B_CLOSED){
                 Serial.println("Blinds are already closed, returning this message to the sender");
                 client.println("{\"state:\": \"closed\"}");
               } else {
                 closeBlinds();
               }
-            }
+            } else 
             if(header.indexOf("POST /open") >=0) {
-              if(currState == OPEN){
+              if(currState == B_OPEN){
                 Serial.println("Blinds are already open, returning this message to the sender");
                 client.println("{\"state:\": \"open\"}");
               } else {
@@ -109,47 +110,10 @@ void loop(){
               }
 
             }
-            
-
-            /* DEPRECATED - Old code from tester
-            // Display the HTML web page
-            client.println("<!DOCTYPE html><html>");
-            client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
-            client.println("<link rel=\"icon\" href=\"data:,\">");
-            // CSS to style the on/off buttons 
-            // Feel free to change the background-color and font-size attributes to fit your preferences
-            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center;}");
-            client.println(".button { background-color: #195B6A; border: none; color: white; padding: 16px 40px;");
-            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
-            client.println(".button2 {background-color: #77878A;}</style></head>");
-            
-            // Web Page Heading
-            client.println("<body><h1>ESP8266 Web Server</h1>");
-            
-            // Display current state, and ON/OFF buttons for GPIO 5  
-            client.println("<p>GPIO 5 - State " + output5State + "</p>");
-            // If the output5State is off, it displays the ON button       
-            if (output5State=="off") {
-              client.println("<p><a href=\"/5/on\"><button class=\"button\">ON</button></a></p>");
-            } else {
-              client.println("<p><a href=\"/5/off\"><button class=\"button button2\">OFF</button></a></p>");
-            } 
-               
-            // Display current state, and ON/OFF buttons for GPIO 4  
-            client.println("<p>GPIO 4 - State " + output4State + "</p>");
-            // If the output4State is off, it displays the ON button       
-            if (output4State=="off") {
-              client.println("<p><a href=\"/4/on\"><button class=\"button\">ON</button></a></p>");
-            } else {
-              client.println("<p><a href=\"/4/off\"><button class=\"button button2\">OFF</button></a></p>");
+            else {
+              Serial.println("Someone connected with a browser");
+              client.println("{\"oniline\": \"true\"}");
             }
-            client.println("</body></html>");
-            
-            // The HTTP response ends with another blank line
-            client.println();
-            // Break out of the while loop
-
-            */
             break;
           } else { // if you got a newline, then clear currentLine
             currentLine = "";
@@ -180,7 +144,7 @@ String connectToWifi(String ssid, String password){
   }
 
   //add IP to properties string
-  ipAddress = WiFi.localIP().toString();
+  String ipAddress = WiFi.localIP().toString();
   properties[3] = "\"address\": \"" + ipAddress + "\"" ;
 
   Serial.println("");
@@ -196,7 +160,7 @@ bool registerDevice(String ipAddress){
   HTTPClient http;
   WiFiClient client;
 
-  String registerDeviceUrl = serverIp + "/device-auto-register";
+  String registerDeviceUrl = SERVER_IP + "/device-auto-register";
   http.begin(client, registerDeviceUrl.c_str());
 
   //set appropriate web headers
@@ -218,4 +182,11 @@ bool registerDevice(String ipAddress){
     Serial.println("ERROR: Recived code:" + httpResponseCode);
     return false; //request failed
   }
+}
+
+void openBlinds(){
+  Serial.println("Blinds Opening");
+}
+void closeBlinds(){
+  Serial.println("Blinds Closing");
 }
