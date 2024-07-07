@@ -23,3 +23,5 @@ TODOS:
 - Stored procedure for sending data to database
 - test with arduino (and finish arduino code
 )
+
+docker container name: sql1
