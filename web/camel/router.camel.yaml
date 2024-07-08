@@ -3,6 +3,7 @@
     scheme: http
     port: "426"
     apiContextPath: /api-docs
+    inlineRoutes: false
 - rest:
     id: rest-379a
     get:
@@ -10,13 +11,14 @@
         description: For checking if server is online
         path: /ping
         to: direct:pingQueue
+        produces: application/json
     post:
       - id: post-b1f5
         description: Devices auto-register themselves here
         path: /device-auto-register
-- rest:
-    id: rest-d65e
-    path: /blinds
+        to: direct:deviceAutoRegisterHandler
+        consumes: application/json
+        produces: application/json
 - route:
     id: route-a0dc
     description: Ping Handler
@@ -37,6 +39,7 @@
                 expression: Pong!
 - route:
     id: route-f526
+    description: device-register handler
     nodePrefixId: route-24b
     from:
       id: from-17e8
@@ -45,10 +48,25 @@
       parameters:
         name: deviceAutoRegisterHandler
       steps:
+        - log:
+            id: log-1c40
+            message: "NEW DEVICE REGISTERING: \\n ${body}"
+            loggingLevel: WARN
         - to:
             id: to-cde3
+            description: Exec stored procedure
             uri: kamelet:sqlserver-sink
             parameters:
               serverName: 192.168.1.120
-              username: sa
-              password: <YourStrong@Passw0rd>
+              username: "{{app.sql.username}}"
+              password: "{{app.sql.password}}"
+              query: >-
+                EXEC dbo.REGISTER_DEVICE @DISPLAY_NAME = :#name, @DEVICE_TYPE =
+                :#type, @ADDRESS = :#address
+              databaseName: home-automation
+        - setBody:
+            id: setBody-3121
+            expression:
+              constant:
+                id: constant-1949
+                expression: "{ \"worked\": \"yes\" }"

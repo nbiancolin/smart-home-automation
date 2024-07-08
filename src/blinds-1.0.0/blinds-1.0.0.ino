@@ -2,6 +2,7 @@
 #include <ESP8266WiFi.h>
 // Load http library
 #include <ESP8266HTTPClient.h>
+#include <WiFiClient.h>
 
 //include properties
 #include "properties.h"
@@ -56,8 +57,10 @@ void setup() {
   //connect to network 
   String ipAddress = connectToWifi(SSID, PASSWORD);
 
+  Serial.print("Connected to wifi...");
   //register device IP with server
   registerDevice(ipAddress);
+  Serial.print("Device registered");
 }
 
 void loop(){
@@ -162,9 +165,9 @@ bool registerDevice(String ipAddress){
   HTTPClient http;
   WiFiClient client;
 
-  String registerDeviceUrl = SERVER_IP + "/device-auto-register";
+  String registerDeviceUrl = "http://192.168.1.158:8080/device-auto-register";
   http.begin(client, registerDeviceUrl.c_str());
-
+  Serial.println("MADE IT IN FN");
   //set appropriate web headers
   http.addHeader("Content-Type", "application/json"); //it is easy to work with json in Camel
 
@@ -173,10 +176,12 @@ bool registerDevice(String ipAddress){
   for(int i = 0; i < 5; ++i){
     httpRequestData += properties[i] + "\n";
   }
+  Serial.println("BEFORE POST");
 
   //send request
   int httpResponseCode = http.POST(httpRequestData);
-
+  Serial.println("After post");
+  Serial.println(httpResponseCode);
   if(httpResponseCode == 200){
     Serial.println("Recieved code 200 OK. Proceeding with operation");
     return true; // request was successful
