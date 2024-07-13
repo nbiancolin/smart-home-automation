@@ -3,12 +3,8 @@
 
 //NOTE: When writing deployment scripts that change version numbers, make sure to change this one
 
-String properties[5] = {
-    "{"
-    "   \"name\": \"North Window\",",
-    "   \"type\": \"blinds\",",
-    "   \"address\": \"111.222.333.444\""
-    "} } "
-  };
+String DEVICE_NAME = "North Window";
+String DEVICE_TYPE = "blinds";
+String ADDRESS;
 
 #endif // PROPERTIES_H

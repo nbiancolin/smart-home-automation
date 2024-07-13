@@ -1,5 +1,6 @@
 // Load Wi-Fi library
 #include <ESP8266WiFi.h>
+
 // Load http library
 #include <ESP8266HTTPClient.h>
 #include <WiFiClient.h>
@@ -20,10 +21,10 @@
  * @param {{ssid}} Network Name
  * @param {{password}} Network Password
  */
-String connectToWifi(String ssid, String password);
+void connectToWifi(String ssid, String password);
 
 // Send HTTP request to server to register devcie
-bool registerDevice(String ipAddress);
+bool registerDevice();
 
 //open and close blinds
 void openBlinds();
@@ -55,11 +56,11 @@ void setup() {
   Serial.println("Nick's Smart Home Automation\n");
 
   //connect to network 
-  String ipAddress = connectToWifi(SSID, PASSWORD);
+  connectToWifi(SSID, PASSWORD);
 
-  Serial.print("Connected to wifi...");
+  Serial.println("Connected to wifi...");
   //register device IP with server
-  registerDevice(ipAddress);
+  registerDevice();
   Serial.print("Device registered");
 }
 
@@ -92,9 +93,9 @@ void loop(){
 
             if (header.indexOf("GET /request-device") >= 0){
               Serial.println("Device Information requested, returning value to sender");
-              for(int i = 0; i < 5; ++i){ //return properties sent
-                client.println(properties[i]);
-              }
+              //for(int i = 0; i < 5; ++i){ //return properties sent
+              //  client.println(properties[i]);
+              //}
             } else
             if(header.indexOf("POST /close") >= 0) {
               if(currState == B_CLOSED){
@@ -136,7 +137,7 @@ void loop(){
 }
 
 
-String connectToWifi(String ssid, String password){
+void connectToWifi(String ssid, String password){
   // Connect to Wi-Fi network with SSID and password
   Serial.print("Connecting to ");
   Serial.println(ssid);
@@ -147,48 +148,49 @@ String connectToWifi(String ssid, String password){
   }
 
   //add IP to properties string
-  String ipAddress = WiFi.localIP().toString();
-  properties[2] = "    \"address\": \"" + ipAddress + "\"" ;
-  //a bug appears when modifying an array of strings, in that thjis value gets overwritten. Adding this to fix it
-  properties[3] = "} ";
+  ADDRESS = WiFi.localIP().toString();
 
   Serial.println("");
   Serial.println("WiFi connected.");
   Serial.println("IP address: ");
-  Serial.println(ipAddress);
+  Serial.println(ADDRESS);
   server.begin();
-  return ipAddress;
 }
 
-bool registerDevice(String ipAddress){
-  //on setup, send a post request to the server to register device
-  HTTPClient http;
+//On startup, send device info to sderver to be stored in database
+bool registerDevice(){
   WiFiClient client;
+  HTTPClient http;
 
-  String registerDeviceUrl = "http://192.168.1.158:8080/device-auto-register";
-  http.begin(client, registerDeviceUrl.c_str());
-  Serial.println("MADE IT IN FN");
-  //set appropriate web headers
-  http.addHeader("Content-Type", "application/json"); //it is easy to work with json in Camel
+  Serial.print("[HTTP] begin...\n");
+  // configure traged server and url
+  http.begin(client, REGISTER_DEVICE_URL);  // HTTP - only works if you put the whole string in like this ...
+  http.addHeader("Content-Type", "application/json");
 
-  //build request bpdy
-  String httpRequestData = "";
-  for(int i = 0; i < 5; ++i){
-    httpRequestData += properties[i] + "\n";
-  }
-  Serial.println("BEFORE POST");
+  Serial.print("[HTTP] POST...\n");
+  // start connection and send HTTP header and body
+  //int httpCode = http.POST("{\"hello\":\"world\"}");
+  String msg = "{\"name\": \"" + DEVICE_NAME + "\", \"type\": \"" + DEVICE_TYPE + "\", \"address\": \"" + ADDRESS + "\"}";
+  int httpCode = http.POST(msg);
 
-  //send request
-  int httpResponseCode = http.POST(httpRequestData);
-  Serial.println("After post");
-  Serial.println(httpResponseCode);
-  if(httpResponseCode == 200){
-    Serial.println("Recieved code 200 OK. Proceeding with operation");
-    return true; // request was successful
+  // httpCode will be negative on error
+  if (httpCode > 0) {
+    // HTTP header has been send and Server response header has been handled
+    Serial.printf("[HTTP] POST... code: %d\n", httpCode);
+
+    // file found at server
+    if (httpCode == HTTP_CODE_OK) {
+      const String& payload = http.getString();
+      Serial.println("received payload:\n<<");
+      Serial.println(payload);
+      Serial.println(">>");
+    }
   } else {
-    Serial.println("ERROR: Recived code:" + httpResponseCode);
-    return false; //request failed
+    Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
   }
+
+  http.end();
+  return true;
 }
 
 void openBlinds(){
