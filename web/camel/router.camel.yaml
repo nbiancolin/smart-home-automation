@@ -1,9 +1,13 @@
 - restConfiguration:
     component: platform-http
     scheme: http
-    port: "426"
+    host: 192.168.1.120
+    port: "8080"
     apiContextPath: /api-docs
     inlineRoutes: false
+    apiProperty:
+      - key: cors
+        value: "true"
 - rest:
     id: rest-379a
     get:
@@ -13,12 +17,16 @@
         to: direct:pingQueue
         produces: application/json
     post:
-      - id: post-b1f5
-        description: Devices auto-register themselves here
-        path: /device-auto-register
-        to: direct:deviceAutoRegisterHandler
-        consumes: application/json
+      - id: post-1ff0
+        path: /posttest
+        to: direct:postTestQueue
+      - id: post-8ab5
+        path: /post-tester
+        to: direct:postTester
         produces: application/json
+      - id: post-fd46
+        path: /device-autoregister
+        to: direct:postTester
 - route:
     id: route-a0dc
     description: Ping Handler
@@ -30,6 +38,9 @@
       parameters:
         name: pingQueue
       steps:
+        - log:
+            id: log-2933
+            message: "PING: ${body}"
         - setBody:
             id: setBody-e1cf
             description: return "Pong!"
@@ -70,3 +81,60 @@
               constant:
                 id: constant-1949
                 expression: "{ \"worked\": \"yes\" }"
+- route:
+    id: route-d343
+    nodePrefixId: route-8ae
+    from:
+      id: from-02fd
+      description: postTestQueue
+      uri: direct
+      parameters:
+        name: postTestQueue
+      steps:
+        - log:
+            id: log-d889
+            message: ${body}
+- route:
+    id: route-6411
+    nodePrefixId: route-cb4
+    from:
+      id: from-e9db
+      description: testPoint
+      uri: direct
+      parameters:
+        name: testPoint
+      steps:
+        - log:
+            id: log-5869
+            message: "headers: ${headers} \\nBody: ${body}"
+- route:
+    id: route-9b40
+    nodePrefixId: route-39e
+    from:
+      id: from-5edc
+      description: postTester
+      uri: direct
+      parameters:
+        name: postTester
+      steps:
+        - log:
+            id: log-94de
+            message: POST TEST
+        - to:
+            id: to-cde3
+            description: Exec stored procedure
+            uri: kamelet:sqlserver-sink
+            parameters:
+              serverName: 192.168.1.120
+              username: "{{app.sql.username}}"
+              password: "{{app.sql.password}}"
+              query: >-
+                EXEC dbo.REGISTER_DEVICE @DISPLAY_NAME = :#name, @DEVICE_TYPE =
+                :#type, @ADDRESS = :#address
+              databaseName: home-automation
+        - setBody:
+            id: setBody-f05f
+            expression:
+              simple:
+                id: simple-fae8
+                expression: "you said: ${body}"
