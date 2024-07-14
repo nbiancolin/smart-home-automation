@@ -1,7 +1,7 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#define REGISTER_DEVICE_URL "http://192.168.1.120:8080/post-tester" 
+#define REGISTER_DEVICE_URL "http://192.168.1.120:8080/device-autoregister" 
 
 const String SSID = "JUPITER";
 const String PASSWORD = "Potatoes";

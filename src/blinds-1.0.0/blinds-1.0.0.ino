@@ -60,15 +60,20 @@ void setup() {
 
   Serial.println("Connected to wifi...");
   //register device IP with server
-  registerDevice();
+  if(!registerDevice()) {
+    Serial.println("ERROR: Device was unable to register itself, check if the web server is operational or configured properly");
+  }
   Serial.print("Device registered");
 }
 
 void loop(){
 
-  //initialize server
+  //initialize server - device will run as a server for remainder of operation
   WiFiClient client = server.available();   // Listen for incoming clients
 
+  currState = B_CLOSED;
+
+  Serial.println("Starting WiFi Server");
   if (client) {                             // If a new client connects,
     Serial.println("New Client.");          // print a message out in the serial port
     String currentLine = "";                // make a String to hold incoming data from the client
@@ -93,9 +98,10 @@ void loop(){
 
             if (header.indexOf("GET /request-device") >= 0){
               Serial.println("Device Information requested, returning value to sender");
-              //for(int i = 0; i < 5; ++i){ //return properties sent
-              //  client.println(properties[i]);
-              //}
+
+              String msg = "{\"name\": \"" + DEVICE_NAME + "\", \"type\": \"" + DEVICE_TYPE + "\", \"address\": \"" + ADDRESS + "\"}";
+              client.println(msg);
+
             } else
             if(header.indexOf("POST /close") >= 0) {
               if(currState == B_CLOSED){
