@@ -30,6 +30,14 @@ bool registerDevice();
 void openBlinds();
 void closeBlinds();
 
+/**
+ * Error handler, handles error stuff
+  * @return nothing
+ */ 
+void errorHandler(Error currError);
+
+
+
 // ** GLOBALS *
 
 // Set web server port number to 80
@@ -37,9 +45,6 @@ WiFiServer server(80);
 
 // Variable to store the HTTP request
 String header;
-
-//enum for state of blinds
-enum State {B_OPEN, B_CLOSED};
 
 State currState;
 
@@ -73,7 +78,7 @@ void loop(){
 
   currState = B_CLOSED;
 
-  Serial.println("Starting WiFi Server");
+  //Serial.println("Starting WiFi Server");
   if (client) {                             // If a new client connects,
     Serial.println("New Client.");          // print a message out in the serial port
     String currentLine = "";                // make a String to hold incoming data from the client
@@ -193,10 +198,37 @@ bool registerDevice(){
     }
   } else {
     Serial.printf("[HTTP] POST... failed, error: %s\n", http.errorToString(httpCode).c_str());
+    errorHandler(E_SERVER_CONNECT);
   }
 
   http.end();
   return true;
+}
+
+void errorHandler(Error currError){
+  switch(currError){
+    case E_WIFI_CONNECT:
+      Serial.println("[ERROR] Device was unable to connect to wifi");
+
+      while(true){ //blink ed LED to signal wifi error
+        digitalWrite(D4, HIGH);
+        delay(500);
+        digitalWrite(D4, LOW);
+        delay(500);
+      }
+      break;
+    case E_SERVER_CONNECT:
+      Serial.println("[ERROR] Device could not connect to web server. Is the server running?");
+
+      while(true){ //blink ed LED to signal wifi error
+        digitalWrite(D6, HIGH);
+        delay(500);
+        digitalWrite(D6, LOW);
+        delay(500);
+        //Serial.println("Blinking LED");
+      }
+      break;
+  }
 }
 
 void openBlinds(){

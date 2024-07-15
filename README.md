@@ -20,8 +20,6 @@ This data will be stored in a
 
 
 TODOS:
-- Stored procedure for sending data to database
-- test with arduino (and finish arduino code
-)
+- Arduino Hardware stuff (Buttons, LEDs, Motor, etc)
 
 docker container name: sql1
