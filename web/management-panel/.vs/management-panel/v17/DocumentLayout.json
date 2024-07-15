@@ -3,12 +3,8 @@
   "WorkspaceRootPath": "D:\\User Stuff\\Documents\\GitHub\\smart-home-automation\\web\\management-panel\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{527D8271-8B08-428F-97AC-6E3154C3B843}|management-panel.csproj|d:\\user stuff\\documents\\github\\smart-home-automation\\web\\management-panel\\pages\\index.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{527D8271-8B08-428F-97AC-6E3154C3B843}|management-panel.csproj|solutionrelative:pages\\index.cshtml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{527D8271-8B08-428F-97AC-6E3154C3B843}|management-panel.csproj|d:\\user stuff\\documents\\github\\smart-home-automation\\web\\management-panel\\pages\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{527D8271-8B08-428F-97AC-6E3154C3B843}|management-panel.csproj|solutionrelative:pages\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{F425CFF2-E9D9-4D2B-8BAB-05CF24C85426}|management-panel\\management-panel.csproj|d:\\user stuff\\documents\\github\\smart-home-automation\\web\\management-panel\\management-panel\\wwwroot\\bootstrap\\bootstrap.min.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{F425CFF2-E9D9-4D2B-8BAB-05CF24C85426}|management-panel\\management-panel.csproj|solutionrelative:management-panel\\wwwroot\\bootstrap\\bootstrap.min.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
     }
   ],
   "DocumentGroupContainers": [
@@ -27,27 +23,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "Index.cshtml.cs",
-              "DocumentMoniker": "D:\\User Stuff\\Documents\\GitHub\\smart-home-automation\\web\\management-panel\\Pages\\Index.cshtml.cs",
-              "RelativeDocumentMoniker": "Pages\\Index.cshtml.cs",
-              "ToolTip": "D:\\User Stuff\\Documents\\GitHub\\smart-home-automation\\web\\management-panel\\Pages\\Index.cshtml.cs",
-              "RelativeToolTip": "Pages\\Index.cshtml.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABIAAAAfAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-07-06T18:01:39.889Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "D:\\User Stuff\\Documents\\GitHub\\smart-home-automation\\web\\management-panel\\Pages\\Index.cshtml",
-              "RelativeDocumentMoniker": "Pages\\Index.cshtml",
-              "ToolTip": "D:\\User Stuff\\Documents\\GitHub\\smart-home-automation\\web\\management-panel\\Pages\\Index.cshtml",
-              "RelativeToolTip": "Pages\\Index.cshtml",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2024-07-06T18:01:37.385Z",
+              "Title": "bootstrap.min.css",
+              "DocumentMoniker": "D:\\User Stuff\\Documents\\GitHub\\smart-home-automation\\web\\management-panel\\management-panel\\wwwroot\\bootstrap\\bootstrap.min.css",
+              "RelativeDocumentMoniker": "management-panel\\wwwroot\\bootstrap\\bootstrap.min.css",
+              "ToolTip": "D:\\User Stuff\\Documents\\GitHub\\smart-home-automation\\web\\management-panel\\management-panel\\wwwroot\\bootstrap\\bootstrap.min.css",
+              "RelativeToolTip": "management-panel\\wwwroot\\bootstrap\\bootstrap.min.css",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2024-07-15T02:22:59.854Z",
               "EditorCaption": ""
             }
           ]
