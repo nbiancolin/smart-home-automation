@@ -16,7 +16,7 @@
 /**
  * connects device to network - returns IP Address of device
  *
- * @returns Ip Address of device
+ * @returns if the device was 
  * 
  * @param {{ssid}} Network Name
  * @param {{password}} Network Password
@@ -57,17 +57,22 @@ const long timeoutTime = 2000;
 
 void setup() {
   Serial.begin(115200);
+  
+  Serial.println("\n");
+  Serial.println("\n");
+  Serial.println("\n");
 
   Serial.println("Nick's Smart Home Automation\n");
+
+  //setup LEDs and external pins
+  pinMode(D6, OUTPUT);
 
   //connect to network 
   connectToWifi(SSID, PASSWORD);
 
   Serial.println("Connected to wifi...");
   //register device IP with server
-  if(!registerDevice()) {
-    Serial.println("ERROR: Device was unable to register itself, check if the web server is operational or configured properly");
-  }
+  registerDevice();
   Serial.print("Device registered");
 }
 
@@ -150,12 +155,19 @@ void loop(){
 
 void connectToWifi(String ssid, String password){
   // Connect to Wi-Fi network with SSID and password
+
+  uint8_t maxWaitTime = 8;
+
   Serial.print("Connecting to ");
   Serial.println(ssid);
   WiFi.begin(ssid.c_str(), password.c_str());
+  uint8_t i = 0;
   while (WiFi.status() != WL_CONNECTED) {
     delay(500); //TODO: add some LED stuff here
     Serial.print(".");
+    if(i++ == 8){
+      errorHandler(E_WIFI_CONNECT);
+    }
   }
 
   //add IP to properties string
@@ -208,17 +220,17 @@ bool registerDevice(){
 void errorHandler(Error currError){
   switch(currError){
     case E_WIFI_CONNECT:
-      Serial.println("[ERROR] Device was unable to connect to wifi");
+      Serial.println("\n[ERROR] Device was unable to connect to wifi");
 
       while(true){ //blink ed LED to signal wifi error
-        digitalWrite(D4, HIGH);
+        digitalWrite(D6, HIGH);
         delay(500);
-        digitalWrite(D4, LOW);
+        digitalWrite(D6, LOW);
         delay(500);
       }
       break;
     case E_SERVER_CONNECT:
-      Serial.println("[ERROR] Device could not connect to web server. Is the server running?");
+      Serial.println("\n[ERROR] Device could not connect to web server. Is the server running?");
 
       while(true){ //blink ed LED to signal wifi error
         digitalWrite(D6, HIGH);
