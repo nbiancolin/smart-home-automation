@@ -1,1 +1,5 @@
 passwords.md
+web/smarthome-env
+__pycache__
+web/webapp/mysite/__pycache__
+web/webapp/polls/__pycache__
